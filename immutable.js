@@ -1,5 +1,5 @@
 /*
-The Immutable function will take a constructor function add the immutable functionality to it and return the function, so next time you create a new object from that constructor function, the resulting object will have immutable properties.
+The Immutable function is a decorator that will take a constructor function add the immutable functionality to it and return the decorated function, so next time you create a new object from that constructor function, the resulting object will have immutable properties.
 */
 
 module.exports = function Immutable(ConstructorFunc) {
@@ -15,21 +15,30 @@ module.exports = function Immutable(ConstructorFunc) {
     }
     Object.freeze(this);
   };
-}
+};
 
 function createAccessors(key, obj) {
   key = key.charAt(0).toUpperCase() + key.slice(1);
-  this[`set${key}`] = () => {};
+  var objProto = Object.getPrototypeOf(obj);
+  if (!objProto.hasOwnProperty(`set${key}`)) {
+    objProto[`set${key}`] = function(value) {
+      obj.previousStates.push(createState.call(obj));
+      // obj = Object.assign(Object.create(objProto), obj, {
+      //   previousStates: obj.previousStates
+      // })
+      // return obj;
+    };
+  }
 }
 
 function createState() {
-	var obj = {};
-	for(var key in this) {
-		Object.defineProperty(obj, key, {
-			value: this[key]
-		})
-	}
-	return obj;
+  var obj = {};
+  for (var key in this) {
+    Object.defineProperty(obj, key, {
+      value: this[key]
+    });
+  }
+  return obj;
 }
 
 // function Person(name, age) {
