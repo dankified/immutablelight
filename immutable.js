@@ -1,32 +1,33 @@
 /*
 The Immutable function is a decorator that will take a constructor function add the immutable functionality to it and return the decorated function, so next time you create a new object from that constructor function, the resulting object will have immutable properties.
 */
-
 module.exports = function Immutable(ConstructorFunc) {
   return function() {
     ConstructorFunc.call(this, ...arguments);
-    Object.defineProperty(this, "previousStates", {
-      value: [],
-      writable: false,
-      enumerable: false
-    });
+    if (!this.hasOwnProperty("previousStates")) {
+      Object.defineProperty(this, "previousStates", {
+        value: [],
+        writable: false,
+        enumerable: false
+      });
+    }
     for (var key in this) {
-      createAccessors.call(this, key, this);
+      createSetter.call(this, key, this);
     }
     Object.freeze(this);
+    return this;
   };
 };
 
-function createAccessors(key, obj) {
+function createSetter(key, obj) {
   key = key.charAt(0).toUpperCase() + key.slice(1);
   var objProto = Object.getPrototypeOf(obj);
   if (!objProto.hasOwnProperty(`set${key}`)) {
     objProto[`set${key}`] = function(value) {
       obj.previousStates.push(createState.call(obj));
-      // obj = Object.assign(Object.create(objProto), obj, {
-      //   previousStates: obj.previousStates
-      // })
-      // return obj;
+      var newObj = obj.constructor("Jose", "32");
+      newObj.previousStates = obj.previousStates;
+      return newObj;
     };
   }
 }
@@ -34,9 +35,11 @@ function createAccessors(key, obj) {
 function createState() {
   var obj = {};
   for (var key in this) {
-    Object.defineProperty(obj, key, {
-      value: this[key]
-    });
+    if (this.hasOwnProperty(`${key}`)) {
+      Object.defineProperty(obj, key, {
+        value: this[key]
+      });
+    }
   }
   return obj;
 }
