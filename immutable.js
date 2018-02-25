@@ -14,19 +14,21 @@ module.exports = function Immutable(ConstructorFunc) {
     for (var key in this) {
       createSetter.call(this, key, this);
     }
+
     Object.freeze(this);
     return this;
   };
 };
 
 function createSetter(key, obj) {
-  key = key.charAt(0).toUpperCase() + key.slice(1);
+  cappedKey = key.charAt(0).toUpperCase() + key.slice(1);
   var objProto = Object.getPrototypeOf(obj);
-  if (!objProto.hasOwnProperty(`set${key}`)) {
-    objProto[`set${key}`] = function(value) {
+  if (!objProto.hasOwnProperty(`set${cappedKey}`)) {
+    objProto[`set${cappedKey}`] = function(value) {
       obj.previousStates.push(createState.call(obj));
-      var newObj = obj.constructor("Jose", "32");
-      newObj.previousStates = obj.previousStates;
+      var rootObj = Object.create(objProto);
+      var newObj = Object.assign(rootObj, obj, {name: "Jose"});
+       newObj.previousStates = obj.previousStates;
       return newObj;
     };
   }
