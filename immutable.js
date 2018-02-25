@@ -45,31 +45,3 @@ function createState() {
   }
   return obj;
 }
-
-// function Person(name, age) {
-//   this.name = name;
-//   this.age = age;
-// }
-
-// Person = Immutable(Person);
-
-// var p1 = new Person("Pedro", 23);
-// p1.setName();
-
-// p1 = createState.call(p1);
-
-// console.log(p1.__proto__);
-
-// Person.prototype.setName = function(name) {
-//   this.prevStates.push({ name: this.name, age: this.age });
-//   var obj = Object.assign(Object.create(Person.prototype), this, {
-//     name: name
-//   });
-//   return obj;
-// };
-
-// Person.prototype.setAge = function(age) {
-//   this.prevStates.push({ name: this.name, age: this.age });
-//   var obj = Object.assign(Object.create(Person.prototype), this, { age: age });
-//   return obj;
-// };
